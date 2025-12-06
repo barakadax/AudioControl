@@ -20,6 +20,9 @@ typedef struct {
 // Kill a specific audio stream (sink input)
 void kill_audio_stream(uint32_t stream_index);
 
+// Move a specific audio stream to a new sink (device)
+void move_audio_stream(uint32_t stream_index, uint32_t sink_index);
+
 // Get list of audio sinks (output devices)
 GList* get_audio_devices(void);
 

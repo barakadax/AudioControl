@@ -281,3 +281,51 @@ void kill_audio_stream(uint32_t stream_index) {
   pa_context_unref(c);
   pa_mainloop_free(m);
 }
+
+void move_audio_stream(uint32_t stream_index, uint32_t sink_index) {
+  pa_mainloop *m = NULL;
+  pa_mainloop_api *api = NULL;
+  pa_context *c = NULL;
+  int ret;
+
+  m = pa_mainloop_new();
+  if (!m) return;
+  
+  api = pa_mainloop_get_api(m);
+  
+  c = pa_context_new(api, "BAM Audio Mover");
+  if (!c) {
+    pa_mainloop_free(m);
+    return;
+  }
+
+  if (pa_context_connect(c, NULL, 0, NULL) < 0) {
+    pa_context_unref(c);
+    pa_mainloop_free(m);
+    return;
+  }
+
+  // Wait for context to be ready
+  while (pa_context_get_state(c) != PA_CONTEXT_READY) {
+    if (pa_context_get_state(c) == PA_CONTEXT_FAILED || 
+        pa_context_get_state(c) == PA_CONTEXT_TERMINATED) {
+      pa_context_unref(c);
+      pa_mainloop_free(m);
+      return;
+    }
+    pa_mainloop_iterate(m, 1, &ret);
+  }
+
+  // Move the sink input
+  pa_operation *o = pa_context_move_sink_input_by_index(c, stream_index, sink_index, NULL, NULL);
+  if (o) {
+    while (pa_operation_get_state(o) == PA_OPERATION_RUNNING) {
+      pa_mainloop_iterate(m, 1, &ret);
+    }
+    pa_operation_unref(o);
+  }
+
+  pa_context_disconnect(c);
+  pa_context_unref(c);
+  pa_mainloop_free(m);
+}

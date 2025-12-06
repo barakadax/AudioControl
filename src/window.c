@@ -96,6 +96,7 @@ static void on_filter_playing_toggled(GtkButton *button, gpointer user_data)
 
 // Forward declaration
 static void refresh_audio_list(AppWidgets *widgets);
+static GdkContentProvider *on_drag_prepare(GtkDragSource *source, double x, double y, gpointer user_data);
 
 // Callback for refresh button
 static void on_refresh_clicked(GtkButton *button, gpointer user_data)
@@ -136,15 +137,24 @@ static void on_refresh_clicked(GtkButton *button, gpointer user_data)
 
     // Check if playing
     row_info->is_playing = 0;
+    uint32_t stream_idx = 0;
     for (GList *p = playing_pids; p != NULL; p = p->next) {
       StreamInfo *stream = (StreamInfo *)p->data;
       if (stream->pid == info->pid) {
         row_info->is_playing = 1;
+        stream_idx = stream->stream_index;
         break;
       }
     }
 
     g_object_set_data_full(G_OBJECT(row_box), "process-info", row_info, (GDestroyNotify)process_info_free);
+
+    // --- DRAG SOURCE SETUP ---
+    if (row_info->is_playing) {
+      GtkDragSource *drag_source = gtk_drag_source_new();
+      g_signal_connect(drag_source, "prepare", G_CALLBACK(on_drag_prepare), GUINT_TO_POINTER(stream_idx));
+      gtk_widget_add_controller(row_box, GTK_EVENT_CONTROLLER(drag_source));
+    }
 
     // Icon
     GtkWidget *icon = NULL;
@@ -232,6 +242,50 @@ static void on_stream_row_activated(GtkListBox *list_box, GtkListBoxRow *row, gp
   }
 }
 
+
+// -- Drag and Drop Callbacks --
+
+static GdkContentProvider *on_drag_prepare(GtkDragSource *source, double x, double y, gpointer user_data)
+{
+  uint32_t stream_index = GPOINTER_TO_UINT(user_data);
+  // Pass stream index as a string or byte array
+  return gdk_content_provider_new_typed(G_TYPE_UINT, stream_index);
+}
+
+static gboolean on_drop(GtkDropTarget *target, const GValue *value, double x, double y, gpointer user_data)
+{
+  uint32_t sink_index = GPOINTER_TO_UINT(user_data);
+  
+  if (G_VALUE_HOLDS(value, G_TYPE_UINT)) {
+    uint32_t stream_index = g_value_get_uint(value);
+    
+    // Move the stream
+    move_audio_stream(stream_index, sink_index);
+    
+    // Refresh UI (we need the widgets structure, which we can attach to the controller or lookup)
+    // For simplicity, we can just trigger a refresh if we could access widgets.
+    // Ideally we should pass widgets to this callback, but we need sink_index too.
+    // Let's rely on the user manually refreshing or auto-refresh if we had a timer.
+    // BUT the requirement says "drop it... so it will be added...". Visual feedback is key.
+    
+    // To cleanly refresh, we can walk up the widget tree to find the window and get "app-widgets" data
+    GtkWidget *widget = gtk_event_controller_get_widget(GTK_EVENT_CONTROLLER(target));
+    GtkWidget *window = gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW);
+    if (window) {
+        AppWidgets *widgets = g_object_get_data(G_OBJECT(window), "app-widgets");
+        if (widgets) {
+             // Small delay to allow PA to process the move
+             // g_timeout_add(100, (GSourceFunc)refresh_audio_list_wrapper, widgets); 
+             // or just direct refresh:
+             on_refresh_clicked(NULL, widgets);
+        }
+    }
+
+    return TRUE;
+  }
+  return FALSE;
+}
+
 static void refresh_audio_list(AppWidgets *widgets)
 {
   GtkWidget *audio_box = widgets->audio_box;
@@ -278,6 +332,12 @@ static void refresh_audio_list(AppWidgets *widgets)
       gtk_widget_set_size_request(device_card, widgets->device_card_width, -1);
       gtk_widget_set_hexpand(device_card, FALSE); // Prevent expansion
       gtk_widget_add_css_class(device_card, "card");
+      
+      // Make device card a Drop Target
+      GtkDropTarget *drop_target = gtk_drop_target_new(G_TYPE_UINT, GDK_ACTION_COPY | GDK_ACTION_MOVE);
+      g_signal_connect(drop_target, "drop", G_CALLBACK(on_drop), GUINT_TO_POINTER(device->index));
+      gtk_widget_add_controller(device_card, GTK_EVENT_CONTROLLER(drop_target));
+
 
       // Device name label
       GtkWidget *name_label = gtk_label_new(device->name);
@@ -524,15 +584,25 @@ void create_and_setup_window(GtkApplication *app)
 
     // Check if playing
     row_info->is_playing = 0;
+    uint32_t stream_idx = 0; // Default 0 (invalid usually for PA but we handle logic carefully)
     for (GList *p = playing_pids; p != NULL; p = p->next) {
       StreamInfo *stream = (StreamInfo *)p->data;
       if (stream->pid == info->pid) {
         row_info->is_playing = 1;
+        stream_idx = stream->stream_index;
         break;
       }
     }
 
     g_object_set_data_full(G_OBJECT(row_box), "process-info", row_info, (GDestroyNotify)process_info_free);
+
+    // --- DRAG SOURCE SETUP ---
+    if (row_info->is_playing) {
+      GtkDragSource *drag_source = gtk_drag_source_new();
+      g_signal_connect(drag_source, "prepare", G_CALLBACK(on_drag_prepare), GUINT_TO_POINTER(stream_idx));
+      // Optionally set an icon or widget for drag feedback
+      gtk_widget_add_controller(row_box, GTK_EVENT_CONTROLLER(drag_source));
+    }
 
     // Icon
     GtkWidget *icon = NULL;
@@ -662,3 +732,4 @@ void create_and_setup_window(GtkApplication *app)
   }
 #endif
 }
+
