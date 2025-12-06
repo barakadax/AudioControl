@@ -38,7 +38,7 @@ button:active {
     transform: translateY(1px);
 }
 
-/* Device Cards - The "Liquid Glass" tiles */
+/* Device Cards - The "Glassmorphism" tiles */
 .card {
     background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02));
     border: 1px solid rgba(255, 255, 255, 0.15);

@@ -47,11 +47,17 @@ sudo mandb
 ```
 Then you can run `man bam` from anywhere.
 
-
 ## Todo
 <ol>
 <li>In `window.c` change it to firstly take the css file from `src/style.css` and if it doesn't exists take it from `~/.config/bam/style.css` and if this doesn't exist continue without styling</li>
 <li>Finish the styling to my liking and create an explanation markdown how to create your own</li>
+<li>Add a button to the OS top bar so it's easy access to run the binary</li>
 <li>Validate behavior on different resolutions</li>
-<li>Add a button to the top bar so it's easy access to run the binary</li>
+<li>Make sure always in the center of the screen</li>
+<li>Fix so logo will be also in `~/.config/bam/` and the `.desktop` file will point to it</li>
+<li>Make sure to use the best practices of gtk and pulseaudio</li>
+<li>Redesign to use design pattern and enforce better memory handling and memory leaks than runtime performance</li>
+<li>Rewrite, make sure naming of structures, functions and variables are self explanatory</li>
+<li>Make sure clean code standards are followed, functions no longer than 20 lines and no comments in code</li>
+<li>GitHub actions</li>
 </ol>
