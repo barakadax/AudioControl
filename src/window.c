@@ -97,6 +97,7 @@ static void on_filter_playing_toggled(GtkButton *button, gpointer user_data)
 // Forward declaration
 static void refresh_audio_list(AppWidgets *widgets);
 static GdkContentProvider *on_drag_prepare(GtkDragSource *source, double x, double y, gpointer user_data);
+static void load_css(void);
 
 // Callback for refresh button
 static void on_refresh_clicked(GtkButton *button, gpointer user_data)
@@ -473,6 +474,9 @@ void create_and_setup_window(GtkApplication *app)
   // Create a new window
   GtkWidget *window = gtk_application_window_new(app);
 
+  // Load CSS
+  load_css();
+
   // Get the display and monitors to calculate size
   GdkDisplay *display = gtk_widget_get_display(window);
   GListModel *monitors = gdk_display_get_monitors(display);
@@ -731,5 +735,24 @@ void create_and_setup_window(GtkApplication *app)
     }
   }
 #endif
+}
+
+// Helper to load CSS
+static void load_css(void)
+{
+  GtkCssProvider *provider = gtk_css_provider_new();
+  const char *css_path = "src/style.css"; // Relative path for dev, or absolute. Best is resource.
+  // For this setup, we assume running from project root.
+  
+  // Try absolute path reconstruction if needed, but relative usually works if CWD is correct.
+  // Let's use relative "src/style.css"
+  
+  gtk_css_provider_load_from_path(provider, css_path);
+  
+  gtk_style_context_add_provider_for_display(gdk_display_get_default(),
+                                             GTK_STYLE_PROVIDER(provider),
+                                             GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+  
+  g_object_unref(provider);
 }
 

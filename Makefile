@@ -14,7 +14,7 @@ LIBS := $(shell $(PKG_CONFIG) --libs $(DEPS_GTK) $(DEPS_PULSE)) -lX11
 SRCS = src/main.c src/window.c src/callbacks.c src/process.c src/audio.c
 TARGET = bam
 
-.PHONY: all check_deps clean
+.PHONY: all check_deps clean force
 
 all: check_deps $(TARGET)
 
@@ -26,8 +26,11 @@ check_deps:
 	@$(PKG_CONFIG) --exists $(DEPS_X11) || (echo "Warning: X11 pkg-config not found. Checking for library..."; ldconfig -p | grep libX11 > /dev/null || echo "Error: libX11 not found. Please install libx11-dev."; )
 	@echo "All dependencies found."
 
-$(TARGET): $(SRCS)
+force:
+
+$(TARGET): $(SRCS) force
 	$(CC) $(CFLAGS) $(SRCS) -o $(TARGET) $(LIBS)
+	@echo "Compilation successful! Run ./$(TARGET) to start the application."
 
 clean:
 	rm -f $(TARGET)

@@ -1,0 +1,43 @@
+.TH BAM 1 "December 2025" "1.0" "Barakadax Audio Manager Manual"
+
+.SH NAME
+bam \- Barakadax Audio Manager
+
+.SH SYNOPSIS
+.B bam
+[\fIOPTIONS\fR]
+
+.SH DESCRIPTION
+.B bam
+is a simple yet powerful audio manager for Linux, built with GTK 4. It allows you to:
+.IP \[bu] 2
+Control volume for individual output devices.
+.IP \[bu]
+Set the default output device.
+.IP \[bu]
+View and manage audio streams associated with running processes.
+.IP \[bu]
+"Drop" (stop) an audio stream by double-clicking its Process ID (PID) in the list or dragging it.
+.IP \[bu]
+Drag-and-drop process streams to different output devices.
+
+The interface features a modern "Liquid Glass" aesthetic with transparency and blur effects.
+
+.SH OPTIONS
+.TP
+.BR \-\-help
+Display this help and exit. (Note: standard GTK help may appear)
+
+.SH FILES
+.TP
+.I src/style.css
+Defines the visual style of the application.
+.TP
+.I ~/.config/bam/
+Configuration files (if any in future versions).
+
+.SH AUTHOR
+Written by Barakadax.
+
+.SH REPORTING BUGS
+Report bugs to the repository.

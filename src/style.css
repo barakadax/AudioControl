@@ -1,0 +1,120 @@
+/* Glassmorphism / Aero Style for GTK 4 */
+
+window {
+    background-color: rgba(10, 10, 10, 0.85);
+    /* Deep dark blue-grey, semi-transparent */
+    color: white;
+    /* Text color */
+    border-radius: 20px;
+    /* Add margin so shadows/corners aren't cut off by screen edges/tiling */
+}
+
+/* Base widget styling for consistency */
+label {
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Buttons with glass effect */
+button {
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    color: white;
+    transition: all 0.2s ease;
+    padding: 8px 16px;
+    margin: 2px;
+}
+
+button:hover {
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+button:active {
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.1));
+    transform: translateY(1px);
+}
+
+/* Device Cards - The "Liquid Glass" tiles */
+.card {
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02));
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    /* clean looks */
+    padding: 15px;
+    margin: 5px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover,
+.card:drop(active) {
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px);
+}
+
+/* Process List Items */
+list {
+    background-color: transparent;
+}
+
+row {
+    background-color: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.2s;
+    padding: 8px;
+    border-radius: 8px;
+    /* Slightly less rounded than cards to fit list better? Or match? User said "same hover effect". Let's keep 8px but apply effects. */
+    margin: 2px 5px;
+}
+
+row:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    /* Match card hover effect */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.05);
+    transform: translateY(-1px);
+    /* Subtle lift */
+}
+
+/* Scrollbars - Thin and unintrusive */
+scrollbar slider {
+    min-width: 6px;
+    min-height: 6px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+
+scrollbar slider:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Sliders (Range/Scale) */
+scale trough {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+}
+
+scale highlight {
+    background-image: linear-gradient(90deg, #00c6ff, #0072ff);
+    /* Cyber blue gradient */
+    border-radius: 5px;
+}
+
+/* Inputs */
+entry {
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: white;
+    padding: 5px 10px;
+}
+
+entry:focus {
+    border-color: rgba(0, 198, 255, 0.6);
+    box-shadow: 0 0 10px rgba(0, 198, 255, 0.2);
+}
