@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=audio manager
+Comment=Barakadax Custom Audio Manager
+Exec=/home/barakadax/Desktop/codes/antigravity/test/bam
+Icon=/home/barakadax/Desktop/codes/antigravity/test/logo.png
+Terminal=false
+Type=Application
+Categories=Utility;
+StartupWMClass=org.barakadax.audioManager
