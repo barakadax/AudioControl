@@ -161,7 +161,11 @@ static void on_refresh_clicked(GtkButton *button, gpointer user_data)
     GtkWidget *icon = NULL;
     if (info->icon_name)
     {
-      icon = gtk_image_new_from_icon_name(info->icon_name);
+      if (info->icon_name[0] == '/')
+        icon = gtk_image_new_from_file(info->icon_name);
+      else
+        icon = gtk_image_new_from_icon_name(info->icon_name);
+
       gtk_image_set_pixel_size(GTK_IMAGE(icon), 24);
       gtk_box_append(GTK_BOX(row_box), icon);
     }
@@ -612,7 +616,11 @@ void create_and_setup_window(GtkApplication *app)
     GtkWidget *icon = NULL;
     if (info->icon_name)
     {
-      icon = gtk_image_new_from_icon_name(info->icon_name);
+      if (info->icon_name[0] == '/')
+        icon = gtk_image_new_from_file(info->icon_name);
+      else
+        icon = gtk_image_new_from_icon_name(info->icon_name);
+
       gtk_image_set_pixel_size(GTK_IMAGE(icon), 24);
       gtk_box_append(GTK_BOX(row_box), icon);
     }
@@ -741,17 +749,35 @@ void create_and_setup_window(GtkApplication *app)
 static void load_css(void)
 {
   GtkCssProvider *provider = gtk_css_provider_new();
-  const char *css_path = "src/style.css"; // Relative path for dev, or absolute. Best is resource.
-  // For this setup, we assume running from project root.
+  char *css_path = NULL;
   
-  // Try absolute path reconstruction if needed, but relative usually works if CWD is correct.
-  // Let's use relative "src/style.css"
-  
-  gtk_css_provider_load_from_path(provider, css_path);
-  
-  gtk_style_context_add_provider_for_display(gdk_display_get_default(),
-                                             GTK_STYLE_PROVIDER(provider),
-                                             GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+  // 1. Check for src/style.css (local development/relative)
+  if (g_file_test("src/style.css", G_FILE_TEST_EXISTS)) {
+    css_path = g_strdup("src/style.css");
+  } 
+  // 2. Check for ~/.config/bam/style.css
+  else {
+    const char *home_dir = g_get_home_dir();
+    if (home_dir) {
+      char *config_path = g_build_filename(home_dir, ".config", "bam", "style.css", NULL);
+      if (g_file_test(config_path, G_FILE_TEST_EXISTS)) {
+        css_path = config_path;
+      } else {
+        g_free(config_path);
+      }
+    }
+  }
+
+  if (css_path) {
+    gtk_css_provider_load_from_path(provider, css_path);
+    
+    gtk_style_context_add_provider_for_display(gdk_display_get_default(),
+                                               GTK_STYLE_PROVIDER(provider),
+                                               GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    g_free(css_path);
+  } else {
+    g_print("No CSS file found, using default styling.\n");
+  }
   
   g_object_unref(provider);
 }

@@ -81,44 +81,138 @@ static int is_user_process(int pid)
   return 0;
 }
 
+static GHashTable *icon_cache = NULL;
+
+static char* get_icon_from_desktop_file(const char *path)
+{
+  FILE *fp = fopen(path, "r");
+  if (!fp) return NULL;
+
+  char buffer[512];
+  char *icon_name = NULL;
+
+  while (fgets(buffer, sizeof(buffer), fp))
+  {
+    if (strncmp(buffer, "Icon=", 5) == 0)
+    {
+      icon_name = g_strdup(buffer + 5);
+      // Remove newline
+      icon_name[strcspn(icon_name, "\n")] = 0;
+      break;
+    }
+  }
+  fclose(fp);
+  return icon_name;
+}
+
+// Check if a desktop file's Exec line matches the process name
+static int check_desktop_file_for_process(const char *path, const char *process_name)
+{
+  FILE *fp = fopen(path, "r");
+  if (!fp) return 0;
+
+  char buffer[512];
+  int found = 0;
+
+  while (fgets(buffer, sizeof(buffer), fp))
+  {
+    if (strncmp(buffer, "Exec=", 5) == 0)
+    {
+      // Check if Exec line contains process name
+      // Logic: Exec=/usr/bin/appname %U -> we check if "appname" is present
+      // To be more precise, we could check for process_name surrounded by delimiters strings
+      // But strstr is a good first step for "contains"
+      char *exec_cmd = buffer + 5;
+      if (strstr(exec_cmd, process_name))
+      {
+        found = 1;
+        break;
+      }
+    }
+  }
+  fclose(fp);
+  return found;
+}
+
+static char* find_desktop_file(const char *process_name)
+{
+  const char *home = getenv("HOME");
+  char local_apps[1024];
+  if (home) {
+    snprintf(local_apps, sizeof(local_apps), "%s/.local/share/applications", home);
+  } else {
+    local_apps[0] = 0;
+  }
+
+  const char *dirs[] = {
+    "/usr/share/applications",
+    "/usr/local/share/applications",
+    local_apps,
+    ".",
+    NULL
+  };
+  
+  // First try direct match: process_name.desktop
+  char path[1024];
+  for (int i = 0; dirs[i] && dirs[i][0]; i++) {
+    snprintf(path, sizeof(path), "%s/%s.desktop", dirs[i], process_name);
+    if (access(path, F_OK) == 0) {
+      return g_strdup(path);
+    }
+  }
+
+  // If not found, iterate directories to find Exec=Match
+  for (int i = 0; dirs[i] && dirs[i][0]; i++) {
+    DIR *d = opendir(dirs[i]);
+    if (!d) continue;
+    
+    struct dirent *entry;
+    while ((entry = readdir(d))) {
+      if (strstr(entry->d_name, ".desktop")) {
+        snprintf(path, sizeof(path), "%s/%s", dirs[i], entry->d_name);
+        if (check_desktop_file_for_process(path, process_name)) {
+          closedir(d);
+          return g_strdup(path);
+        }
+      }
+    }
+    closedir(d);
+  }
+  
+  return NULL;
+}
+
 static char* get_icon_name_for_process(const char *process_name)
 {
-  // Simple mapping of common process names to icon names
-  // This is a basic implementation - could be enhanced with desktop file parsing
-  
   if (!process_name)
     return NULL;
 
-  // Common applications mapping
-  if (strstr(process_name, "chrome") || strstr(process_name, "google-chrome"))
-    return g_strdup("google-chrome");
-  if (strstr(process_name, "firefox"))
-    return g_strdup("firefox");
-  if (strstr(process_name, "code") || strstr(process_name, "vscode"))
-    return g_strdup("code");
-  if (strstr(process_name, "spotify"))
-    return g_strdup("spotify");
-  if (strstr(process_name, "discord"))
-    return g_strdup("discord");
-  if (strstr(process_name, "slack"))
-    return g_strdup("slack");
-  if (strstr(process_name, "telegram"))
-    return g_strdup("telegram");
-  if (strstr(process_name, "thunderbird"))
-    return g_strdup("thunderbird");
-  if (strstr(process_name, "nautilus"))
-    return g_strdup("org.gnome.Nautilus");
-  if (strstr(process_name, "gnome-terminal"))
-    return g_strdup("org.gnome.Terminal");
-  if (strstr(process_name, "konsole"))
-    return g_strdup("konsole");
-  if (strstr(process_name, "vlc"))
-    return g_strdup("vlc");
-  if (strstr(process_name, "gimp"))
-    return g_strdup("gimp");
-  
-  // Default: use process name as icon name
-  return g_strdup(process_name);
+  if (!icon_cache)
+    icon_cache = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+
+  // Check cache
+  char *cached_icon = g_hash_table_lookup(icon_cache, process_name);
+  if (cached_icon)
+    return g_strdup(cached_icon);
+
+  // Try to find desktop file
+  char *desktop_path = find_desktop_file(process_name);
+  char *found_icon = NULL;
+
+  if (desktop_path) {
+    found_icon = get_icon_from_desktop_file(desktop_path);
+    g_free(desktop_path);
+  }
+
+  // If still not found, fallback to process name itself
+  if (!found_icon) {
+    found_icon = g_strdup(process_name);
+  }
+
+  // Store in cache (store a copy)
+  g_hash_table_insert(icon_cache, g_strdup(process_name), g_strdup(found_icon));
+
+  return found_icon;
 }
 
 GList* get_user_processes(void)

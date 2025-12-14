@@ -1,0 +1,169 @@
+/* 
+ * STYLE TEMPLATE
+ * -------------------
+ * This file serves as a reference for all available styling options in the application.
+ * You can copy sections from here to your active `style.css` to apply themes or customizations.
+ */
+
+/* ==========================================================================
+   GLOBAL WINDOW STYLES
+   ========================================================================== */
+window {
+    /* Main background color. heavily transparent dark color looks best for "Glass" effect */
+    background-color: rgba(10, 10, 10, 0.85);
+
+    /* Default text color for the entire window */
+    color: white;
+
+    /* Rounded corners for the main window */
+    border-radius: 20px;
+}
+
+/* ==========================================================================
+   TYPOGRAPHY
+   ========================================================================== */
+label {
+    /* Base text color */
+    color: #ffffff;
+
+    /* Text shadow for better readability on transparent backgrounds */
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* ==========================================================================
+   BUTTONS
+   ========================================================================== */
+/* Standard Button Style */
+button {
+    /* Gradient background for depth */
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
+
+    /* Semi-transparent white border */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+
+    /* Rounded corners for buttons */
+    border-radius: 12px;
+
+    /* Button shadow */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    color: white;
+    padding: 8px 16px;
+    margin: 2px;
+
+    /* Smooth transition for hover effects */
+    transition: all 0.2s ease;
+}
+
+/* Button Hover State */
+button:hover {
+    /* Brighter gradient on hover */
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+
+    /* Glowing shadow effect */
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+
+    /* Slight lift effect */
+    transform: translateY(-1px);
+}
+
+/* Button Active/Pressed State */
+button:active {
+    /* Darker gradient when pressed */
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.1));
+    transform: translateY(1px);
+}
+
+/* ==========================================================================
+   CONTAINERS & CARDS
+   ========================================================================== */
+/* "Glassmorphism" Tile/Card */
+.card {
+    /* Angled gradient for the glass surface look */
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02));
+
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+
+    /* Deep shadow to separate from background */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+
+    padding: 15px;
+    margin: 5px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover,
+.card:drop(active) {
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   LISTS & ROWS
+   ========================================================================== */
+list {
+    background-color: transparent;
+}
+
+row {
+    background-color: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 8px;
+    border-radius: 8px;
+    margin: 2px 5px;
+    transition: all 0.2s;
+}
+
+row:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.05);
+    transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   FORM CONTROLS & INPUTS
+   ========================================================================== */
+/* Search Bar */
+entry {
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: white;
+    padding: 5px 10px;
+    outline: none;
+}
+
+entry:focus,
+entry:focus-within {
+    /* Focus glow matching button hover style */
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+/* Scrollbars */
+scrollbar slider {
+    min-width: 6px;
+    min-height: 6px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+
+scrollbar slider:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Range Sliders */
+scale trough {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+}
+
+scale highlight {
+    /* Accent color for sliders */
+    background-image: linear-gradient(90deg, #00c6ff, #0072ff);
+    border-radius: 5px;
+}

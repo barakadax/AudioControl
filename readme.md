@@ -52,14 +52,16 @@ sudo mandb
 ```
 Then you can run `man bam` from anywhere.
 
+### Styling
+To style the app, create a file called `style.css` in the `~/.config/bam/` directory. The app will look for this file and apply the styles to the window.
+There is an example file `style_template.css`
+
 ## Todo
 <ol>
-<li>In <code>window.c</code> change it to firstly take the css file from <code>src/style.css</code> and if it doesn't exists take it from <code>~/.config/bam/style.css</code> and if this doesn't exist continue without styling</li>
-<li>Finish the styling to my liking and create an explanation markdown how to create your own</li>
-<li>Add a button to the OS top bar so it's easy access to run the binary</li>
+<li>Add a button to the OS top bar so it's easy access to run the binary, use gs_logo</li>
 <li>Validate behavior on different resolutions</li>
 <li>Make sure always in the center of the screen</li>
-<li>Fix so logo will be also in <code>~/.config/bam/</code> and the <code>.desktop</code> file will point to it</li>
+<li>Fix so logo will be also in <code>~/.config/bam/</code> and the <code>.desktop</code> file will point to it or un/install scripts</li>
 <li>Make sure to use the best practices of gtk and pulseaudio</li>
 <li>Redesign to use design pattern and enforce better memory handling and memory leaks than runtime performance</li>
 <li>Rewrite, make sure naming of structures, functions and variables are self explanatory</li>
